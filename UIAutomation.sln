@@ -1,0 +1,90 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2013
+VisualStudioVersion = 12.0.21005.1
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{100CFA93-8196-4ECB-B633-7293DD12C784}"
+	ProjectSection(SolutionItems) = preProject
+		Local.testsettings = Local.testsettings
+		TraceAndTestImpact.testsettings = TraceAndTestImpact.testsettings
+		UIAutomation.vsmdi = UIAutomation.vsmdi
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UI.Automation.Web", "WebUIAutomation\UI.Automation.Web.csproj", "{93AB7A9C-AC81-4A74-BB51-650DAEB95214}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UI.Automation.Win", "WinUIAutomation\UI.Automation.Win.csproj", "{3EBF3887-BEBF-449F-ABCF-D080BE757152}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UI.Automation.ObjectUtility", "UI.Automation.ObjectUtility\UI.Automation.ObjectUtility.csproj", "{1FC3DE6B-34AE-449E-A3B6-89DBFBF6E152}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UI.Automation.TestController", "UI.Automation.TestController\UI.Automation.TestController.csproj", "{C0DC2B7B-5BB6-4622-A0C7-EBD96C2DB904}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestReport", "TestReport\TestReport.csproj", "{C008CE4C-FA39-4973-88DD-065C8A514AD3}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Debug|Mixed Platforms = Debug|Mixed Platforms
+		Debug|x86 = Debug|x86
+		Release|Any CPU = Release|Any CPU
+		Release|Mixed Platforms = Release|Mixed Platforms
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{93AB7A9C-AC81-4A74-BB51-650DAEB95214}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{93AB7A9C-AC81-4A74-BB51-650DAEB95214}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{93AB7A9C-AC81-4A74-BB51-650DAEB95214}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{93AB7A9C-AC81-4A74-BB51-650DAEB95214}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{93AB7A9C-AC81-4A74-BB51-650DAEB95214}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{93AB7A9C-AC81-4A74-BB51-650DAEB95214}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{93AB7A9C-AC81-4A74-BB51-650DAEB95214}.Release|Any CPU.Build.0 = Release|Any CPU
+		{93AB7A9C-AC81-4A74-BB51-650DAEB95214}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{93AB7A9C-AC81-4A74-BB51-650DAEB95214}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{93AB7A9C-AC81-4A74-BB51-650DAEB95214}.Release|x86.ActiveCfg = Release|Any CPU
+		{3EBF3887-BEBF-449F-ABCF-D080BE757152}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3EBF3887-BEBF-449F-ABCF-D080BE757152}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3EBF3887-BEBF-449F-ABCF-D080BE757152}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{3EBF3887-BEBF-449F-ABCF-D080BE757152}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{3EBF3887-BEBF-449F-ABCF-D080BE757152}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{3EBF3887-BEBF-449F-ABCF-D080BE757152}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3EBF3887-BEBF-449F-ABCF-D080BE757152}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3EBF3887-BEBF-449F-ABCF-D080BE757152}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{3EBF3887-BEBF-449F-ABCF-D080BE757152}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{3EBF3887-BEBF-449F-ABCF-D080BE757152}.Release|x86.ActiveCfg = Release|Any CPU
+		{1FC3DE6B-34AE-449E-A3B6-89DBFBF6E152}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1FC3DE6B-34AE-449E-A3B6-89DBFBF6E152}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1FC3DE6B-34AE-449E-A3B6-89DBFBF6E152}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{1FC3DE6B-34AE-449E-A3B6-89DBFBF6E152}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{1FC3DE6B-34AE-449E-A3B6-89DBFBF6E152}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{1FC3DE6B-34AE-449E-A3B6-89DBFBF6E152}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1FC3DE6B-34AE-449E-A3B6-89DBFBF6E152}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1FC3DE6B-34AE-449E-A3B6-89DBFBF6E152}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{1FC3DE6B-34AE-449E-A3B6-89DBFBF6E152}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{1FC3DE6B-34AE-449E-A3B6-89DBFBF6E152}.Release|x86.ActiveCfg = Release|Any CPU
+		{C0DC2B7B-5BB6-4622-A0C7-EBD96C2DB904}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C0DC2B7B-5BB6-4622-A0C7-EBD96C2DB904}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C0DC2B7B-5BB6-4622-A0C7-EBD96C2DB904}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{C0DC2B7B-5BB6-4622-A0C7-EBD96C2DB904}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{C0DC2B7B-5BB6-4622-A0C7-EBD96C2DB904}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{C0DC2B7B-5BB6-4622-A0C7-EBD96C2DB904}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C0DC2B7B-5BB6-4622-A0C7-EBD96C2DB904}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C0DC2B7B-5BB6-4622-A0C7-EBD96C2DB904}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{C0DC2B7B-5BB6-4622-A0C7-EBD96C2DB904}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{C0DC2B7B-5BB6-4622-A0C7-EBD96C2DB904}.Release|x86.ActiveCfg = Release|Any CPU
+		{C008CE4C-FA39-4973-88DD-065C8A514AD3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C008CE4C-FA39-4973-88DD-065C8A514AD3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C008CE4C-FA39-4973-88DD-065C8A514AD3}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{C008CE4C-FA39-4973-88DD-065C8A514AD3}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{C008CE4C-FA39-4973-88DD-065C8A514AD3}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{C008CE4C-FA39-4973-88DD-065C8A514AD3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C008CE4C-FA39-4973-88DD-065C8A514AD3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C008CE4C-FA39-4973-88DD-065C8A514AD3}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{C008CE4C-FA39-4973-88DD-065C8A514AD3}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{C008CE4C-FA39-4973-88DD-065C8A514AD3}.Release|x86.ActiveCfg = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(TestCaseManagementSettings) = postSolution
+		CategoryFile = UIAutomation.vsmdi
+	EndGlobalSection
+EndGlobal

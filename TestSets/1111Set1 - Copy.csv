@@ -1,0 +1,32 @@
+Testcaseid,Descriptions,Keyword,Parameter,Status,Actual,Expected,Timetaken
+3,Verify enable & disable funcctionality of tool buttons while on Home Menu before downloading a job,UA_LOGINTO_ENTRADA,testeditor1@testeditor1,Pass,,,00:00:03
+,,CP_ENTRADEDITOR_VALIDATE_HOMEPAGE_DISPLAYED,,Pass,,,00:00:00
+,,UA_ENTRADAHOME_SELECT_MENUITEM,Home,Pass,,,00:00:02
+,,CP_ENTRADAHOME_VALIDATE_BUTTONS_ENABLED,Start Edit Queue@Find Available Jobs,Pass,,,00:00:05
+,,CP_ENTRADAHOME_VALIDATE_BUTTONS_DISABLED,Stop Edit Queue@Finish Document@Send to QA@Split by JobType@Split by Patient@Patients@Referring Physicians@Insert Macro@Add CC@Rewind@Play@Stop@Fast Forward@Decrease Speed@Increase Speed,Pass,,,00:00:40
+4,Verify enable & disable funcctionality of tool buttons while on Format Menu before downloading a job,UA_LOGINTO_ENTRADA,testeditor1@testeditor1,Pass,,,00:00:01
+,,CP_ENTRADEDITOR_VALIDATE_HOMEPAGE_DISPLAYED,,Pass,,,00:00:00
+,,UA_ENTRADAHOME_SELECT_MENUITEM,Format,Pass,,,00:00:02
+,,CP_ENTRADAHOME_VALIDATE_BUTTONS_DISABLED,Paste@Cut@Copy@Paste Special@Item@Find@Replace@Auto Sentence@Next Anomaly@Previous Anomaly@Upper Case@Spell Check,Pass,,,00:00:30
+5,Verify enable & disable funcctionality of tool buttons while on Advanced Menu before downloading a job,UA_LOGINTO_ENTRADA,testeditor1@testeditor1,Pass,,,00:00:00
+,,CP_ENTRADEDITOR_VALIDATE_HOMEPAGE_DISPLAYED,,Pass,,,00:00:00
+,,UA_ENTRADAHOME_SELECT_MENUITEM,Advanced,Pass,,,00:00:03
+,,CP_ENTRADAHOME_VALIDATE_BUTTONS_ENABLED,Work Summary@Preferences@AutoCorrect Options@Change Password@Open Log Folder@Send Logs to Support,Fail,Exception has been thrown by the target of an invocation.,,00:00:10
+,,CP_ENTRADAHOME_VALIDATE_BUTTONS_DISABLED,Release Job,,,,
+6,Verify enable & disable funcctionality of tool buttons while on Home Menu After downloading a job,UA_LOGINTO_ENTRADA,testeditor1@testeditor1,Pass,,,00:00:00
+,,CP_ENTRADEDITOR_VALIDATE_HOMEPAGE_DISPLAYED,,Pass,,,00:00:00
+,,UA_ENTRADAHOME_SELECT_MENUITEM,Home,Pass,,,00:00:03
+,,UA_ENTRADAHOME_CLICKFINDALLJOBS,,Pass,,,00:00:04
+,,UA_ENTRADAHOME_SELECTJOB_BYJOBNAME,2012071900000002,Pass,,,00:00:17
+,,UA_ENTRADAHOME_DOWNLOADJOB,,Pass,,,00:00:05
+,,CP_ENTRADAHOME_VALIDATE_BUTTONS_ENABLED,Start Edit Queue@Find Available Jobs@Finish Document@Send to QA@Split by JobType@Split by Patient@Patients@Referring Physicians@Add CC@Rewind@Play@Fast Forward@Decrease Speed@Increase Speed,Fail,,,00:00:07
+,,CP_ENTRADAHOME_VALIDATE_BUTTONS_DISABLED,Stop Edit Queue@Insert Macro@Stop,,,,
+7,Verify enable & disable funcctionality of tool buttons while on Format Menu After downloading a job,UA_LOGINTO_ENTRADA,testeditor1@testeditor1,Pass,,,00:00:00
+,,CP_ENTRADEDITOR_VALIDATE_HOMEPAGE_DISPLAYED,,Pass,,,00:00:00
+,,UA_ENTRADAHOME_SELECT_MENUITEM,Format,Pass,,,00:00:16
+,,CP_ENTRADAHOME_VALIDATE_BUTTONS_ENABLED,Paste@Paste Special@Item@Find@Replace@Auto Sentence@Next Anomaly@Previous Anomaly@Upper Case@Spell Check,Fail,Exception has been thrown by the target of an invocation.,,00:00:27
+,,CP_ENTRADAHOME_VALIDATE_BUTTONS_DISABLED,Cut@Copy,,,,
+8,Verify enable & disable funcctionality of tool buttons while on Advanced Menu After downloading a job,UA_LOGINTO_ENTRADA,testeditor1@testeditor1,Pass,,,00:00:00
+,,CP_ENTRADEDITOR_VALIDATE_HOMEPAGE_DISPLAYED,,Pass,,,00:00:00
+,,UA_ENTRADAHOME_SELECT_MENUITEM,Advanced,Pass,,,00:00:03
+,,CP_ENTRADAHOME_VALIDATE_BUTTONS_ENABLED,Release Job@Work Summary@Preferences@AutoCorrect Options@Change Password@Open Log Folder@Send Logs to Support,Fail,Exception has been thrown by the target of an invocation.,,00:00:26
