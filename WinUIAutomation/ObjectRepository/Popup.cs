@@ -8,5 +8,7 @@ namespace UI.Automation.Win.ObjectRepository
     class Popup
     {
         public const string confirmWindow = "Confirm";
+        public const string confirmWindow = "Confirm1";
     }
 }
+
