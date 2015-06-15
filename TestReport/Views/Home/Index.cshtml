@@ -1,0 +1,112 @@
+﻿@model TestReport.Models.TestResults
+
+<asp:Content ID="Content1" ContentPlaceHolderID="TitleContent" runat="server">
+    @*Automation Test Results*@
+</asp:Content>
+<asp:Content ID="Content2" ContentPlaceHolderID="MainContent" runat="server">
+    @*<p>
+            To learn more about ASP.NET MVC visit <a href="http://asp.net/mvc" title="ASP.NET MVC Website">
+                http://asp.net/mvc
+            </a>.
+        </p>*@
+    <div class="row">
+        <div class="col-lg-2">
+            <nav>
+                <ul class="pager">
+                    <li class="previous"><a href="#"><span aria-hidden="true">&larr;</span> Previous Day</a></li>
+                </ul>
+            </nav>
+        </div>
+        @*<div class="col-lg-8 text-center">
+            <div class="dropdown">
+                <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-expanded="true">
+                    Dropdown
+                    <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu1">
+                    <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Action</a></li>
+                    <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Another action</a></li>
+                    <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Something else here</a></li>
+                    <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Separated link</a></li>
+                </ul>
+            </div>
+        </div>*@
+        <div class="col-lg-2">
+            <nav>
+                <ul class="pager">
+                    <li class="next"><a href="#">Next Day <span aria-hidden="true">&rarr;</span></a></li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+    <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+        @for (int j = 0; j < Model.TestCases.Count; j++)
+        {
+            <div class="panel panel-default">
+
+                <div class="panel-heading" role="tab" id="@Html.Raw("headingOne"+j)">
+                    <h4 class="panel-title">
+                        <a data-toggle="collapse" data-parent="#accordion" href="@Html.Raw("#collapseOne"+j)" aria-controls="@Html.Raw("collapseOne"+j)">
+                            <div class="row">
+                                <div class="col-lg-1 col-xs-2">@Model.TestCases[j].Id</div>
+                                <div class="col-lg-10 col-xs-8 text-wrap">@Model.TestCases[j].Descriptioin</div>
+                                <div class="col-lg-1 col-xs-2">@Model.TestCases[j].Status</div>
+                            </div>
+                            @*<table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>
+                                                @Model.TestCases[j].Id
+                                            </th>
+                                            <th >
+                                                @Model.TestCases[j].Descriptioin
+                                            </th>
+                                            <th>
+                                                @Model.TestCases[j].Status
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                </table>*@
+                        </a>
+                    </h4>
+                </div>
+
+                <div id="@Html.Raw("collapseOne"+j)" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="@Html.Raw("headingOne"+j)">
+                    <div class="panel-body">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th class="col-lg-1 col-xs-2">
+                                        #
+                                    </th>
+                                    <th class="col-lg-10 col-xs-8">
+                                        Keyword Name
+                                    </th>
+                                    <th class="col-lg-1 col-xs-2">
+                                        Status
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @for (int i = 0; i < Model.TestCases[j].Keywords.Count; i++)
+                                {
+                                    <tr>
+                                        <th scope="row">
+                                            @(i + 1)
+                                        </th>
+                                        <td>
+                                            @Model.TestCases[j].Keywords[i].Name
+                                        </td>
+                                        <td>
+                                            @Model.TestCases[j].Keywords[i].Status
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</asp:Content>
