@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Configuration;
 
-namespace UI.Automation.TestController
+namespace ConsoleApplication1ry
 {
     public static class CommonVariables
     {

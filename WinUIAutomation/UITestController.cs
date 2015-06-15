@@ -16,6 +16,11 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Reflection;
 using System.Collections.Generic;
 using UI.Automation.Win.ObjectRepository;
+using UI.Automation.Win;
+using UI.Automation.ObjectUtility;
+using System.Data.OleDb;
+
+
 
 
 
@@ -28,6 +33,7 @@ namespace UI.Automation.Win
     public class UITestController
     {
         public static string testCaseID = string.Empty;
+        public static string testCaseDesc = string.Empty;
         private string _sxlFile = string.Empty;
         private string sTxtFilePath = string.Empty;
         private string sErrorLogs = string.Empty;
@@ -59,10 +65,18 @@ namespace UI.Automation.Win
        
         private StreamReader sr = default(StreamReader);
         private StreamWriter sw = default(StreamWriter);
+        //DXControlExtension dxControl = new DXControlExtension();
+
+        TestResults Results = new TestResults();
+        TestCase Testcase = new TestCase();
+        Keyword keyword = new Keyword();
+
+        private string sPath;// Path to stroe test reults and scrren shots.
+        private string sResultDirectory;
 
         public UITestController()
         {
-            sTxtFilePath = @"F:\UIAutomation\Logs.txt";
+            sTxtFilePath = @"F:\Github\UIAutomation\Logs.txt";
             Playback.PlaybackSettings.SmartMatchOptions = SmartMatchOptions.None;
 
         }
@@ -83,301 +97,439 @@ namespace UI.Automation.Win
         static int counter = default(int);
         public static string currentPickingTripId = string.Empty;
 
-
         [TestMethod, Timeout(999999999)]
-        public void RunTestSet()
-        {
-            //if (CommonVariables.EnableCoverage.ToString() == "1")
-            //{
-            //    if (CommonVariables.EnableInstrumentation == "1")
-            //    {
-            //        //to delete all .exe and .orig files from existing folders befour copying
-            //        //  PDBFileDelete();
-
-            //        CopyPdbFiles();
-            //        StartInstrumentation();
-            //    }
-            //    StartCoverage(); // If you dont want to collect the coverage report, please comment this line  and as well as stopCoverage at the end of loop.
-            //}
-            //else if (CommonVariables.EnableProfiling.ToString() == "1")
-            //{
-            //    StartProfiling();
-            //}
-
-            if (Directory.Exists(CommonVariables.ResultXmlPath + DateTime.Now.ToString("dd-MM-yyyy")))
-            {
-                CommonVariables.ResultXmlPath = CommonVariables.ResultXmlPath + DateTime.Now.ToString("dd-MM-yyyy") + @"\";
-            }
-            else
-            {
-                Directory.CreateDirectory(CommonVariables.ResultXmlPath + DateTime.Now.ToString("dd-MM-yyyy"));
-                CommonVariables.ResultXmlPath = CommonVariables.ResultXmlPath + DateTime.Now.ToString("dd-MM-yyyy") + @"\";
-            }
-            //if (File.Exists(CommonVariables.ResultXmlPath + CommonVariables.ResultXmlName))
-            //{
-            //    xmlFileExits = true;
-            //    OldXmlFile.Load(CommonVariables.ResultXmlPath + CommonVariables.ResultXmlName);
-            //}
-
-            DirectoryInfo dir = new DirectoryInfo(CommonVariables.TestCasePath);
-
-                  ReadXLOrCSVFiles(dir);
+        public void RUNTEST()
+        {            
+            ExecuteTestCases();     
           
-            //if (CommonVariables.EnableProfiling.ToString() == "1" || CommonVariables.EnableCoverage.ToString() == "1")
-            //{
-            //    StopCoverage();
-            //}
         }
-
-        public void ReadXLOrCSVFiles(DirectoryInfo dir)
-        {
-            int i = 1;
-            foreach (FileInfo fs in dir.GetFiles())
-            {
-                if (fs.Name.ToUpper() == "SET" + i + ".XLSX" || fs.Name.ToUpper() == "SET" + i + ".XLS")
-                {
-                    LastKeywordIndex = false;
-                    sTestSetPath = fs.FullName;
-                    CommonVariables.PresentCscFilePath = fs.FullName;
-                    _sxlFile = sTestSetPath;
-                    i = i + 1;
-                    file_Type = "XLS";
-                }
-                else if (fs.Name.ToUpper() == "SET" + i + ".CSV")
-                {
-                    LastKeywordIndex = false;
-                    sTestSetPath = fs.FullName;
-                    CommonVariables.PresentCscFilePath = fs.FullName;
-                    _sxlFile = sTestSetPath;
-                    i = i + 1;
-                    file_Type = "CSV";
-                    //SetCsvKeywords(sTestSetPath); //Old Code
-
-                    if (CommonVariables.SanityCheck)
-                        SetCsvKeywords(sTestSetPath);
-                    else
-                        break;
-                }
-            }
-        }
-
-        [TestMethod]
-        public void SetCsvKeywords(string strTestSetPath)
+     
+        public void ExecuteTestCases()
         {
             try
             {
+                string path = @"F:\Temp\edit\QAAutomationData.xlsx";
+                var oledbConn = new OleDbConnection();
 
-                csv_lines = File.ReadAllLines(strTestSetPath);
-               
-                for (int i = 1; i < csv_lines.GetLength(0); i++)
+                /* connection string  to work with excel file. HDR=Yes - indicates 
+                   that the first row contains columnnames, not data. HDR=No - indicates 
+                   the opposite. "IMEX=1;" tells the driver to always read "intermixed" 
+                   (numbers, dates, strings etc) data columns as text. */
+
+                string sSheet = "Testcase";
+
+                if (Path.GetExtension(path) == ".xls")
                 {
-                    string[] row;
-                    csv_Lines_Index = i;
-                    row = csv_lines[i].Split(',');
-                    if (row[0].ToString().Trim() != "")
+                    oledbConn =
+                        new OleDbConnection("Provider=Microsoft.Jet.OLEDB.4.0;Data Source=" + path +
+                                            ";Extended Properties=\"Excel 8.0;HDR=Yes;IMEX=2\"");
+                }
+                else if (Path.GetExtension(path) == ".xlsx")
+                {
+                    oledbConn =
+                        new OleDbConnection(@"Provider=Microsoft.ACE.OLEDB.12.0;Data Source=" + path +
+                                            ";Extended Properties='Excel 12.0;HDR=YES;IMEX=1;';");
+                }
+
+                oledbConn.Open();
+                OleDbCommand cmd = new OleDbCommand();
+                OleDbDataAdapter oleda = new OleDbDataAdapter();
+                DataSet dsTestcase = new DataSet();
+                DataSet dsKeyword = new DataSet();
+                DataSet dsTestdata = new DataSet();
+
+
+                string KeywordSheet = "";
+                string TestCaseId = "";
+                string Keyword = "";
+                string DataSheet = "";
+                string Dataset = "";
+                string TargetKeyword = "";
+                string TargetParam = "";
+                bool stepPass = true;
+                bool keywordPass = true;
+                bool runNextKeyword = true;
+                string status = "Pass";
+
+                int TotalRowCount;
+
+                cmd.Connection = oledbConn;
+                cmd.CommandType = CommandType.Text;
+                cmd.CommandText = "SELECT * FROM " + "[" + sSheet + "$]";
+                oleda = new OleDbDataAdapter(cmd);
+                oleda.Fill(dsTestcase);
+                
+
+                TotalRowCount = Convert.ToInt32(dsTestcase.Tables[0].Rows.Count);
+
+                string c = dsTestcase.Tables[0].Rows[0][0].ToString();
+                for (int i = 0; i < dsTestcase.Tables[0].Rows.Count; i++)
+                {
+
+
+                    stepPass = true;
+                    keywordPass = true;
+                    status = "Pass";
+
+                    KeywordSheet = dsTestcase.Tables[0].Rows[i]["KeywordSheet"].ToString();
+                    testCaseID = dsTestcase.Tables[0].Rows[i]["TestCaseId"].ToString();
+                    Keyword = dsTestcase.Tables[0].Rows[i]["Keyword"].ToString();
+                    DataSheet = dsTestcase.Tables[0].Rows[i]["DataSheet"].ToString();
+                    Dataset = dsTestcase.Tables[0].Rows[i]["Dataset"].ToString();
+                    testCaseDesc = dsTestcase.Tables[0].Rows[i]["TestCase Desc"].ToString();
+
+                    strKeyword = Keyword;
+
+                    if (testCaseID != "")
                     {
-                        sTestcaseId = row[0].ToString().Trim();
-                        testCaseID = sTestcaseId;
+                        Testcase = new TestCase();
+                        keyword = new Keyword();
+
+                        Testcase.Id = testCaseID;
+                        Testcase.Descriptioin = testCaseDesc;
+                        sTcId = testCaseID;
+                        runNextKeyword = true;
+
                     }
-                    else
-                        sTestcaseId = null;
-                    if (row[1].ToString().Trim() != "")
-                        sTestcaseDesc = row[1].ToString().Trim();
-                    else
-                        sTestcaseDesc = "";
-                    if (row[2].ToString().Trim() != "")
-                        strKeyword = row[2].ToString().Trim().ToUpper();
-                    else
-                        strKeyword = null;
-                    if (row[3].ToString().Trim() != "")
-                        strParam = row[3].ToString().Trim();
-                    else
-                        strParam = null;
-                    iRowIndexTemp = i + 1;
-                    if (iRowIndexTemp == csv_lines.GetLength(0))
-                        LastKeywordIndex = true;
 
-                    ExecuteKeywords();
-                }
-            }
-
-            catch (Exception e)
-            {
-                CommonVariables.sComExceptionlog = e.Message.ToString();
-                Playback.PlaybackSettings.ContinueOnError = true;
-                WriteResultLogs(false);
-                bXlopened = false;
-            }
-        }
-
-        public void ExecuteKeywords()
-        {
-            try
-            {
-
-                //string sKeywordType;
-                CommonVariables.sComExceptionlog = "";
-                string testcaseStatus = "Pass";
-                //StartCoverage(); // If you dont want to collect the coverage report, please comment this line  and as well as stopCoverage at the end of loop.
-                strKeyword = strKeyword.Trim();
-                if (sTestcaseId != null)
-                {
-                    sTcId = sTestcaseId;
-                    sTctemp = sTestcaseId;
-                    bRuNextKeyword = true;
-                    WriteErrLog(sTxtFilePath, "Running " + sTestcaseId + " " + DateTime.Now.ToString());
-
-                    //if (iRowIndexTemp == 1)
-                    //{
-                    //    _testCase = Factory.GetTestCase;
-                    //    _testCase.Id = sTcId;
-                    //    _testCase.StartTime = DateTime.Now.ToString();
-                    //}
-                    //if (iRowIndexTemp != 1)
-                    //{
-                    //    for (int j = 0; j < _testCase.KeyWords.Count; j++)
-                    //    {
-                    //        if (_testCase.KeyWords[j].Status == "Fail")
-                    //        {
-                    //            testcaseStatus = "Fail";
-                    //            break;
-                    //        }
-                    //    }
-                    //    _testCase = Factory.GetTestCase;
-                    //    _testCase.Id = sTcId;
-                    //    _testCase.StartTime = DateTime.Now.ToString();
-                    //}
-                }
-                else
-                {
-                    sTcId = sTctemp;
-                }
-                sStartTime = DateTime.Now.ToString("hh:mm:s");
-
-
-                //Eliminated switch case statement for invoking methods dynamically.
-                if (bRuNextKeyword)
-                {
-                    bool isMethodInvoked = ExecuteDynamicKeywords(strKeyword, strParam);
-                    WriteResultLogs(isMethodInvoked);
-
-                }
-
-                //if (sTestcaseId != null)
-                //{
-                //    _testCase.Description = sTestcaseDesc; //Add Description here
-                //    _testResult.TestCases.Add(_testCase);
-                //    int count = _testResult.TestCases.Count;
-                //    if (count == 1)
-                //    {
-                //        _testResult.TestCases[0].Result = "Inprogress";
-                //    }
-                //    else
-                //    {
-                //        int PrvCount = count - 1;   //Eliminating Latest testcase
-                //        for (int i = 0; i < PrvCount; i++)
-                //        {
-                //            for (int j = 0; j < _testResult.TestCases[i].KeyWords.Count; j++)
-                //            {
-                //                if (_testResult.TestCases[i].KeyWords[j].Status == "Fail")
-                //                {
-                //                    testcaseStatus = "Fail";
-                //                    break;
-                //                }
-                //                else
-                //                    testcaseStatus = "Pass";
-                //            }
-                //            _testResult.TestCases[i].Result = testcaseStatus;
-                //        }
-                //        _testResult.TestCases[count - 1].Result = "Inprogress";
-                //    }
-                //}
-                //if (LastKeywordIndex)
-                //{
-                //    for (int j = 0; j < _testCase.KeyWords.Count; j++)
-                //    {
-                //        if (_testCase.KeyWords[j].Status == "Fail")
-                //        {
-                //            testcaseStatus = "Fail";
-                //            break;
-                //        }
-                //        else
-                //            testcaseStatus = "Pass";
-                //    }
-                //    _testCase.Result = testcaseStatus;
-                //}
-                //if (xmlFileExits == true)
-                //{
-                //    XmlDocument x2 = new XmlDocument();
-                //    xmloutput = GenericXmlSerializer.SerializeObj(_testResult);
-                //    x2.LoadXml(xmloutput);
-                //    string strOldXml = OldXmlFile.LastChild.LastChild.InnerXml;
-                //    string strNewXml = ((x2.LastChild).LastChild).InnerXml;
-                //    string strFinalXml = strOldXml + strNewXml;
-                //    string rootName = OldXmlFile.DocumentElement.Name.ToString();
-                //    string FirstsubNode = OldXmlFile.DocumentElement.FirstChild.Name.ToString();
-                //    xmloutput = "<" + rootName + ">" + "<" + FirstsubNode + ">" + strFinalXml + "</" + FirstsubNode + ">" + "</" + rootName + ">";
-                //    resultXml.LoadXml(xmloutput);
-                //    resultXml.Save(CommonVariables.ResultXmlPath + CommonVariables.ResultXmlName);
-                //}
-                //else
-                //{
-                //    xmloutput = GenericXmlSerializer.SerializeObj(_testResult);
-                //    resultXml.LoadXml(xmloutput);
-                //    resultXml.Save(CommonVariables.ResultXmlPath + CommonVariables.ResultXmlName);
-                //}
-                //StopCoverage();
-
-            }
-
-            catch (Exception e)
-            {
-                CommonVariables.sComExceptionlog = e.Message.ToString();
-                Playback.PlaybackSettings.ContinueOnError = true;
-                WriteResultLogs(false);
-                bXlopened = false;
-            }
-
-        }
-
-        private bool ExecuteDynamicKeywords(string keywordName, string parameterName)
-        {
-            bool status = default(bool);
-
-            try
-            {
-                string @namespace = CommonVariables.AutomationNameSpace;
-
-                var executingAssembly = (from t in Assembly.GetExecutingAssembly().GetTypes()
-                                         where t.IsClass && t.Namespace == @namespace
-                                         select t).ToList();
-
-                var y = executingAssembly[0].GetMethods();
-                if (executingAssembly != default(List<Type>) && executingAssembly.Count > 0)
-                {
-                    foreach (var eAssemblyType in executingAssembly)
+                    if (runNextKeyword)
                     {
-                        Type currentType = eAssemblyType.UnderlyingSystemType;
-
-
-                        MethodInfo methodInfo = currentType.GetMethod(keywordName);
-                        if (methodInfo != default(MethodInfo))
+                        //GetKeywords
+                        if (Keyword.Contains("CK_"))
                         {
-                            object classInstance = Activator.CreateInstance(currentType, null);
+                            cmd.CommandText = "SELECT * FROM " + "[" + KeywordSheet + "$] WHERE Keyword=" + "'" + Keyword + "'";
+                            oleda = new OleDbDataAdapter(cmd);
+                            oleda.Fill(dsKeyword);
+                            int cnt = dsKeyword.Tables[0].Rows.Count;
+                            string k = dsKeyword.Tables[0].Rows[0][0].ToString();
 
-                            if (classInstance != default(object))
+
+                            //Get Destdata
+                            if (Dataset != "")
                             {
-                                if (!string.IsNullOrEmpty(parameterName))
+                                if (Dataset == "All")
                                 {
-                                    status = Convert.ToBoolean(methodInfo.Invoke(classInstance, new object[] { parameterName }));
-                                    break;
+                                    cmd.CommandText = "SELECT * FROM " + "[" + DataSheet + "$]";
                                 }
                                 else
                                 {
-                                    status = Convert.ToBoolean(methodInfo.Invoke(classInstance, null));
-                                    break;
+                                    cmd.CommandText = "SELECT * FROM " + "[" + DataSheet + "$] WHERE Dataset=" + "'" + Dataset + "'";
                                 }
+                                oleda = new OleDbDataAdapter(cmd);
+                                oleda.Fill(dsTestdata);
+                                int cnt1 = dsTestdata.Tables[0].Rows.Count;
+                                string k1 = dsTestdata.Tables[0].Rows[0][0].ToString();
+
+                                for (int iTestdataIte = 0; iTestdataIte < dsTestdata.Tables[0].Rows.Count; iTestdataIte++)
+                                {
+                                    for (int iKeywordstepIte = 0; iKeywordstepIte < dsKeyword.Tables[0].Rows.Count; iKeywordstepIte++)
+                                    {
+                                        string step = "";
+                                        string objectpath = "";
+                                        string Refvalue = "";
+                                        string pValue = "";
+
+                                        step = dsKeyword.Tables[0].Rows[iKeywordstepIte]["Steps"].ToString();
+                                        objectpath = dsKeyword.Tables[0].Rows[iKeywordstepIte]["ObjectPath"].ToString();
+                                        Refvalue = dsKeyword.Tables[0].Rows[iKeywordstepIte]["Value"].ToString();
+                                        TargetKeyword = step;
+                                        if (Refvalue != "")
+                                        {
+                                            pValue = dsTestdata.Tables[0].Rows[iTestdataIte][Refvalue].ToString();
+                                            TargetParam = objectpath + "," + pValue;
+                                        }
+                                        else
+                                        {
+                                            TargetParam = objectpath;
+
+                                        }
+                                        CommonVariables.AutomationNameSpace = "UI.Automation.ObjectUtility";
+                                        CommonVariables.KeywordClass = "ActionHandlerForClassicKeyword";
+                                        stepPass = ExecuteDynamicKeywords(TargetKeyword, TargetParam);
+                                        if (!stepPass)
+                                        {
+                                            runNextKeyword = false;
+                                            keywordPass = false;
+                                            status = "Fail";
+
+                                            Testcase.Keywords.Add(new Keyword { Name = Keyword, Status = status });
+
+                                            Testcase.Status = "Fail";
+                                            Results.TestCases.Add(Testcase);
+                                            InvokeClearDownMethods();
+                                            break;
+                                        }                                       
+
+                                    }
+
+                                    Testcase.Keywords.Add(new Keyword { Name = Keyword, Status = status });
+                                    if (!stepPass) break;
+
+                                }
+
+
+                                dsTestdata.Tables[0].Rows.Clear();
+                                dsTestdata.Tables[0].Columns.Clear();
                             }
+                            else  // keywords that have no parameters
+                            {
+                                for (int iKeywordstepIte = 0; iKeywordstepIte < dsKeyword.Tables[0].Rows.Count; iKeywordstepIte++)
+                                {
+                                    string step = "";
+                                    string objectpath = "";
+                                    string Refvalue = "";
+                                    string pValue = "";
+
+                                    step = dsKeyword.Tables[0].Rows[iKeywordstepIte]["Steps"].ToString();
+                                    objectpath = dsKeyword.Tables[0].Rows[iKeywordstepIte]["ObjectPath"].ToString();
+                                    Refvalue = dsKeyword.Tables[0].Rows[iKeywordstepIte]["Value"].ToString();
+                                    TargetKeyword = step;
+
+                                    TargetParam = objectpath;
+
+                                    CommonVariables.AutomationNameSpace = "UI.Automation.ObjectUtility";
+                                    CommonVariables.KeywordClass = "ActionHandlerForClassicKeyword";
+                                    stepPass = ExecuteDynamicKeywords(TargetKeyword, TargetParam);
+                                    if (!stepPass)
+                                    {
+                                        runNextKeyword = false;
+                                        keywordPass = false;
+                                        status = "Fail";
+
+                                        Testcase.Keywords.Add(new Keyword { Name = Keyword, Status = status });
+
+                                        Testcase.Status = "Fail";
+                                        Results.TestCases.Add(Testcase);
+                                        InvokeClearDownMethods();
+                                        break;
+                                    }                                    
+
+                                }
+                                Testcase.Keywords.Add(new Keyword { Name = Keyword, Status = status });
+                           
+                            }
+
+                            dsKeyword.Tables[0].Rows.Clear();
+                            dsKeyword.Tables[0].Columns.Clear();
+                        }
+
+
+
+                        else // Business keyword Path
+                        {
+                            if (Dataset != "")
+                            {
+
+                                TargetKeyword = Keyword;
+                                //Get Testdata
+                                if (Dataset == "All")
+                                {
+                                    cmd.CommandText = "SELECT * FROM " + "[" + DataSheet + "$]";
+                                }
+                                else
+                                {
+                                    cmd.CommandText = "SELECT * FROM " + "[" + DataSheet + "$] WHERE Dataset=" + "'" + Dataset + "'";
+                                }
+
+                                oleda = new OleDbDataAdapter(cmd);
+                                oleda.Fill(dsTestdata);
+                                int cnt1 = dsTestdata.Tables[0].Rows.Count;
+                                string k1 = dsTestdata.Tables[0].Rows[0][0].ToString();
+                                for (int iTestdataRow = 0; iTestdataRow < dsTestdata.Tables[0].Rows.Count; iTestdataRow++)
+                                {
+                                    string inParam = "";
+                                    for (int iTestDataCol = 1; iTestDataCol < dsTestdata.Tables[0].Columns.Count; iTestDataCol++)
+                                    {
+                                        if (iTestDataCol != 1)
+                                        {
+                                            inParam = inParam + "," + dsTestdata.Tables[0].Rows[iTestdataRow][iTestDataCol].ToString();
+                                        }
+
+                                        else
+                                        {
+                                            inParam = dsTestdata.Tables[0].Rows[iTestdataRow][iTestDataCol].ToString();
+                                        }
+                                    }
+
+                                    TargetParam = inParam;
+                                    CommonVariables.AutomationNameSpace = "UI.Automation.Win";
+                                    CommonVariables.KeywordClass = "";
+                                    stepPass = ExecuteDynamicKeywords(TargetKeyword, TargetParam);
+
+                                    if (!stepPass)
+                                    {
+                                        runNextKeyword = false;
+                                        keywordPass = false;
+                                        status = "Fail";
+
+                                        Testcase.Keywords.Add(new Keyword { Name = Keyword, Status = status });
+
+                                        Testcase.Status = "Fail";
+                                        Results.TestCases.Add(Testcase);
+                                        InvokeClearDownMethods();
+                                        break;
+                                    }
+
+                                }
+
+                                Testcase.Keywords.Add(new Keyword { Name = Keyword, Status = status });
+
+                                dsTestdata.Tables[0].Rows.Clear();
+                                dsTestdata.Tables[0].Columns.Clear();
+                                
+                            }
+                            else //Business keywords that have no parameters
+                            {
+                                TargetKeyword = Keyword;
+                                TargetParam = "";
+                                CommonVariables.AutomationNameSpace = "UI.Automation.Win";
+                                CommonVariables.KeywordClass = "";
+                                stepPass = ExecuteDynamicKeywords(TargetKeyword, TargetParam);
+
+                                if (!stepPass)
+                                {
+                                    runNextKeyword = false;
+                                    keywordPass = false;
+                                    status = "Fail";
+
+                                    Testcase.Keywords.Add(new Keyword { Name = Keyword, Status = status });
+
+                                    Testcase.Status = "Fail";
+                                    Results.TestCases.Add(Testcase);
+                                    InvokeClearDownMethods();
+                                }
+
+                                Testcase.Keywords.Add(new Keyword { Name = Keyword, Status = status });
+
+                            }
+
+                        }
+
+                        if (keywordPass)
+                        {
+                            testCaseID = dsTestcase.Tables[0].Rows[i + 1]["TestCaseId"].ToString();
+                            if (testCaseID != "")
+                            {
+
+                                Testcase.Status = "Pass";
+                                Results.TestCases.Add(Testcase);
+                                SaveTestResults();
+                            }
+                        }
+                    }
+
+               }                
+
+               
+                oledbConn.Dispose();
+            }
+                
+           
+
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+            }
+
+            finally
+            {
+                
+            }
+
+
+        }
+        
+        private bool ExecuteDynamicKeywords(string keywordName, string parameterName)
+        {
+            
+            bool status = default(bool);
+
+            try
+            {   
+                List<string> namespacelist = new List<string>();
+                List<string> classlist = new List<string>();
+
+                List<string> lsNamespace = new List<string>();
+                string namespaces = CommonVariables.AutomationNameSpace;
+                string strClass = CommonVariables.KeywordClass;
+                lsNamespace = namespaces.Split('@').ToList();
+                foreach (string @namespace in lsNamespace)
+                {
+
+                    var executingAssembly = (from t in Assembly.Load(@namespace).GetTypes()
+                                             where t.IsClass && t.Namespace == @namespace
+                                             select t).ToList();
+
+                    if (executingAssembly != default(List<Type>) && executingAssembly.Count > 0)
+                    {
+                        foreach (var eAssemblyType in executingAssembly)
+                        {
+                            Type currentType = eAssemblyType.UnderlyingSystemType;
+                            
+                            if(strClass!="")
+                            {
+                                if (currentType.FullName.Contains(strClass))
+                                {
+
+                                    MethodInfo methodInfo = currentType.GetMethod(keywordName);
+                                    if (methodInfo != default(MethodInfo))
+                                    {
+                                        object classInstance = Activator.CreateInstance(currentType, null);
+
+
+                                        if (classInstance != default(object))
+                                        {
+                                            if (!string.IsNullOrEmpty(parameterName))
+                                            {
+                                                string[] parameters = parameterName.Split(',');
+                                                object[] parametersArray = new object[parameters.Length];
+                                                for (int i = 0; i < parameters.Length; i++)
+                                                {
+                                                    parametersArray[i] = parameters[i].ToString();
+                                                }
+                                                status = Convert.ToBoolean(methodInfo.Invoke(classInstance, parametersArray));
+                                                break;
+                                            }
+                                            else
+                                            {
+                                                status = Convert.ToBoolean(methodInfo.Invoke(classInstance, null));
+                                                break;
+                                            }
+                                        }
+                                    }
+                                }
+
+                                }
+
+                                else
+                                {
+                                    MethodInfo methodInfo = currentType.GetMethod(keywordName);
+                                    if (methodInfo != default(MethodInfo))
+                                    {
+                                        object classInstance = Activator.CreateInstance(currentType, null);                               
+
+                                        if (classInstance != default(object))
+                                        {
+                                            if (!string.IsNullOrEmpty(parameterName))
+                                            {
+                                                string[] parameters =  parameterName.Split(',');
+                                                object[] parametersArray = new object[parameters.Length];
+                                                for (int i = 0; i < parameters.Length; i++)
+                                                {
+                                                    parametersArray[i] = parameters[i].ToString();
+                                                }
+                                                status = Convert.ToBoolean(methodInfo.Invoke(classInstance,  parametersArray));
+                                                break;
+                                            }
+                                            else
+                                            {
+                                                status = Convert.ToBoolean(methodInfo.Invoke(classInstance, null));
+                                                break;
+                                            }
+                                        }
+                                    }
+                                }
+
                         }
                     }
                 }
@@ -389,6 +541,33 @@ namespace UI.Automation.Win
                 CommonVariables.sComExceptionlog = ex.Message.ToString();
             }
             return status;
+        }
+
+
+        private void SaveTestResults()
+        {
+            try
+            {
+             
+                string sFileName = "Results.xml";
+                
+                var text = Helper.ConvertObjectToXML(Results);
+                sPath = Path.GetDirectoryName(Path.GetDirectoryName(System.IO.Directory.GetCurrentDirectory()));
+                sResultDirectory = DateTime.Now.ToString("dd-MM-yyyy");
+                sPath = sPath + "\\" + sResultDirectory;           
+                
+                if (!System.IO.Directory.Exists(sPath))
+                {
+                    System.IO.Directory.CreateDirectory(sPath);
+                }
+
+                System.IO.File.WriteAllText(sPath + "\\" + sFileName, text);
+            }
+
+            catch
+            {
+
+            }
         }
 
 
@@ -436,11 +615,11 @@ namespace UI.Automation.Win
                     string[] Split_row = csv_lines[csv_Lines_Index].Split(',');
                     if (Split_row.Length > 4)
                     {
-                        int Split_row_leg = Split_row[0].Length + Split_row[1].Length + Split_row[2].Length + Split_row[3].Length + 3;  //3 for commas in string line
-                        RowVal = RowVal.Remove(Split_row_leg) + "," + sResult + "," + CommonVariables.sComExceptionlog.Replace("\n", "").Replace("\r", "") + "," + "" + "," + Convert.ToDateTime(sEndTime).Subtract(Convert.ToDateTime(sStartTime)).ToString();
+                        int Split_row_leg = Split_row[0].Length + Split_row[1].Length + Split_row[2].Length + Split_row[3].Length + Split_row[4].Length + 4;  //4 for commas in string line
+                        RowVal = RowVal.Remove(Split_row_leg) +","+  sResult + "," + CommonVariables.sComExceptionlog.Replace("\n", "").Replace("\r", "") + "," + Convert.ToDateTime(sEndTime).Subtract(Convert.ToDateTime(sStartTime)).ToString();
                     }
                     else
-                        RowVal += "," + sResult + "," + CommonVariables.sComExceptionlog.Replace("\n", "").Replace("\r", "") + "," + "" + "," + Convert.ToDateTime(sEndTime).Subtract(Convert.ToDateTime(sStartTime)).ToString();
+                        RowVal +=  ","+sResult + "," + CommonVariables.sComExceptionlog.Replace("\n", "").Replace("\r", "") + ","  + Convert.ToDateTime(sEndTime).Subtract(Convert.ToDateTime(sStartTime)).ToString();
                     csv_lines[csv_Lines_Index] = RowVal;
                     File.WriteAllLines(sTestSetPath, csv_lines);
                 }
@@ -449,163 +628,38 @@ namespace UI.Automation.Win
            
             Playback.PlaybackSettings.ContinueOnError = true;
         }
-
-      
         
-        public void ClearDownPickingList()
-        {
-            string[] filePaths = Directory.GetFiles(CommonVariables.ClearDownPickingList, "*.xml");
-            foreach (string filePath in filePaths)
-            {
-                File.Delete(filePath);
-            }
-        }
-
+        
         public void CaptureScreen()
         {
             string sFileName = sTcId + "_" + strKeyword + "_" + DateTime.Now.ToString("dd-MM-yyyy") + "_" + DateTime.Now.ToString("hh-mm-ss");
             Image failureScrn = UITestControl.Desktop.CaptureImage();
-            FailureLogPath = sFileName + ".png";
-            //failureScrn.Save(CommonVariables.CaptureScreen + sFileName + ".png");
-            failureScrn.Save(CommonVariables.ResultXmlPath + sFileName + ".png");
-            ScrShot = CommonVariables.ResultXmlPath + sFileName + ".png";
+            failureScrn.Save(sPath + "\\" + sFileName +".png");
         }
-        [TestMethod]
+       
         public void InvokeClearDownMethods()
         {
+            SaveTestResults();
             CaptureScreen();
-            ClearDownPickingList();
+            CloseApplication();
+         
         }
 
-        //[TestMethod]
-        //public void StartCoverage()
-        //{
-        //    string batchPath = "C:\\CoverageStart.bat";
-        //    string sCoverageFileName = "Applications_" + DateTime.Now.ToString("dd-MM-yyyy") + ".coverage";
-        //    string CoveragePath = CommonVariables.CoverageReports;
-        //    StreamWriter sw = new StreamWriter(batchPath);
-        //    string sParam = CommonVariables.coveragepathVS2010;
-        //    string driveName = sParam.Remove(1).ToString();
-        //    sw.WriteLine(driveName + ":");
-        //    sw.WriteLine("cd " + sParam);
 
-        //    string StartCoverage = "start vsperfmon /CS /user:everyone /coverage /output:";
-        //    sw.WriteLine(StartCoverage.ToString() + CoveragePath + sCoverageFileName);
-        //    sw.Close();
-        //    Process p = Process.Start(batchPath);
-        //    p.WaitForExit();
-        //    // File.Delete(batchPath);
 
-        //    ServiceController[] svcs = ServiceController.GetServices();
-
-        //    var windowsServiceList = (from service in svcs
-        //                              where service.DisplayName.StartsWith("GHS")
-        //                              select new
-        //                              {
-        //                                  DisplayName = service.ServiceName,
-        //                                  Status = service.Status.ToString()
-        //                              }
-        //                             ).ToList();
-        //    for (int i = 0; i <= windowsServiceList.Count - 1; i++)
-        //    {
-        //        ServiceController ghs = new ServiceController();
-        //        TimeSpan timeout = TimeSpan.FromMilliseconds(60000);
-        //        ghs.ServiceName = windowsServiceList[i].DisplayName;
-        //        if (ghs.Status == ServiceControllerStatus.Running)
-        //        {
-        //            ghs.Stop();
-        //            ghs.WaitForStatus(ServiceControllerStatus.Stopped, timeout);
-        //            ghs.Start();
-        //            ghs.WaitForStatus(ServiceControllerStatus.Running, timeout);
-        //        }
-        //        else
-        //        {
-        //            ghs.Start();
-        //            ghs.WaitForStatus(ServiceControllerStatus.Running, timeout);
-        //        }
-        //    }
-        //}
-
-        //[TestMethod]
-        //public void StopCoverage()
-        //{
-        //    string batchPath = "C:\\CoverageStop.bat";
-        //    string CoveragePath = CommonVariables.CoverageReports;
-
-        //    StreamWriter sw = new StreamWriter(batchPath);
-        //    string sParam = CommonVariables.coveragepathVS2010;
-        //    string driveName = sParam.Remove(1).ToString();
-        //    sw.WriteLine(driveName + ":");
-        //    sw.WriteLine("cd " + sParam);
-        //    sw.WriteLine("iisreset");
-        //    sw.WriteLine("vsperfcmd /shutdown");
-        //    sw.WriteLine("VSPerfCLREnv /off");
-        //    sw.WriteLine("Success");
-        //    sw.Close();
-
-        //    ServiceController[] svcs = ServiceController.GetServices();
-
-        //    var windowsServiceList = (from service in svcs
-        //                              where service.DisplayName.StartsWith("GHS")
-        //                              select new
-        //                              {
-        //                                  DisplayName = service.ServiceName,
-        //                                  Status = service.Status.ToString()
-        //                              }
-        //                             ).ToList();
-        //    for (int i = 0; i <= windowsServiceList.Count - 1; i++)
-        //    {
-        //        ServiceController ghs = new ServiceController();
-        //        TimeSpan timeout = TimeSpan.FromMilliseconds(60000);
-        //        ghs.ServiceName = windowsServiceList[i].DisplayName;
-        //        if (ghs.Status == ServiceControllerStatus.Running)
-        //        {
-        //            ghs.Stop();
-        //            ghs.WaitForStatus(ServiceControllerStatus.Stopped, timeout);
-        //        }
-        //    }
-
-        //    Process p = Process.Start(batchPath);
-        //    p.WaitForExit();
-        //    // File.Delete(batchPath);
-        //}
-
-        //[TestMethod]
-        //public void StartProfiling()
-        //{
-        //    string sProcess = CommonVariables.CoveragePath;
-        //    string sParam = CommonVariables.coveragepathVS2010;
-        //    string sProfileFileName = "MPA." + DateTime.Now.ToString("dd-MM-yyyy") + "--" + DateTime.Now.ToString("hh-mm-ss") + ".vsp";
-
-        //    cmdp.StartInfo.RedirectStandardInput = true;
-        //    cmdp.StartInfo.RedirectStandardOutput = true;
-        //    cmdp.StartInfo.UseShellExecute = false;
-
-        //    cmdp.StartInfo.FileName = sProcess;
-        //    cmdp.Start();
-
-        //    System.IO.StreamReader sOut = cmdp.StandardOutput;
-        //    StreamWriter myStreamWriter = cmdp.StandardInput;
-
-        //    string driveName = sParam.Remove(1).ToString();
-        //    myStreamWriter.WriteLine(driveName + ":");
-        //    myStreamWriter.WriteLine("cd " + sParam);
-
-        //    if (CommonVariables.ProfilingType.ToUpper() == "EXE")
-        //    {
-        //        myStreamWriter.WriteLine("VSPerfCLREnv /SampleOn");
-        //        myStreamWriter.WriteLine("VSPerfCLREnv /InteractionOn");
-        //        myStreamWriter.WriteLine(CommonVariables.ProfileReports + sProfileFileName);
-        //    }
-        //    else if (CommonVariables.ProfilingType.ToUpper() == "WEB")
-        //    {
-        //        myStreamWriter.WriteLine(CommonVariables.ProfileWebAppReports + sProfileFileName);
-        //    }
-
-        //    // cmdp.Close();
-        //    Thread.Sleep(10000);
-        //}
-
+        public void CloseApplication()
+        {
+            Thread.Sleep(10000);
+            string processName = "Entrada.Editor";
+            Process[] processes = Process.GetProcessesByName(processName);
+            foreach (Process process in processes)
+            {
+                process.Kill();
+            }           
+        }
+        
+        
+        
         public void WriteErrLog(string sfilePath, string serrlog)
         {
             FileStream fs = null;
@@ -631,7 +685,6 @@ namespace UI.Automation.Win
         }
 
 
-        //@################################################################################################@
         [TestInitialize()]
         public void MyTestInitialize()
         {
@@ -652,34 +705,6 @@ namespace UI.Automation.Win
         }
 
 
-        public bool UA_AddNo()
-        {
-            try
-            {
-
-                //Please add all your valid code in this block
-                int sum = 10 + 10;
-                return true;
-
-            }
-            catch (PlaybackFailureException playbackExp)
-            {
-                string sPlaybackExceptionLog = playbackExp.Message; //sPlaybackExceptionLog declare this variable in Variable map
-                return false;
-            }
-
-            catch (Exception e)
-            {
-                string sComExceptionLog = e.Message; //sComExceptionLog declare this variable in Variable map
-                return false;
-            }
-        }
-
-        // #endregion
-        /// <summary>
-        ///Gets or sets the test context which provides
-        ///information about and functionality for the current test run.
-        ///</summary>
         public TestContext TestContext
         {
             get

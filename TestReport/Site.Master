@@ -13,9 +13,7 @@
     <div class="page">
         <div class="header">
             <div class="title">
-                <h1>
-                    COMPANY NAME AND LOGO
-                </h1>
+                <asp:Image id="Image1" runat="server" ImageUrl="~/Images/CopanyIcon.png"></asp:Image>
             </div>
        
             <div class="clear hideSkiplink">

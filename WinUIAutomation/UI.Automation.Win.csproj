@@ -70,6 +70,8 @@
     </CodeAnalysisDependentAssemblyPaths>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Helper.cs" />
+    <Compile Include="Keyword.cs" />
     <Compile Include="Keywords\CheckPoints.cs" />
     <Compile Include="Keywords\UserActions.cs" />
     <Compile Include="ObjectRepository\CommonVariables.cs" />
@@ -77,6 +79,8 @@
     <Compile Include="ObjectRepository\Login.cs" />
     <Compile Include="ObjectRepository\Popup.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TestCase.cs" />
+    <Compile Include="TestResults.cs" />
     <Compile Include="UITestController.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -57,6 +57,10 @@
     </When>
   </Choose>
   <ItemGroup>
+    <Reference Include="DevExpress.CodedUIExtension.VS12.v14.2, Version=14.2.4.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>C:\Windows\Microsoft.NET\assembly\GAC_MSIL\DevExpress.CodedUIExtension.VS12.v14.2\v4.0_14.2.4.0__b88d1754d700e49a\DevExpress.CodedUIExtension.VS12.v14.2.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework" />
     <Reference Include="System" />
     <Reference Include="System.Core">
@@ -73,6 +77,7 @@
     </CodeAnalysisDependentAssemblyPaths>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DXControlExtension.cs" />
     <Compile Include="IParameter.cs" />
     <Compile Include="Parameters.cs" />
     <Compile Include="Util.cs" />

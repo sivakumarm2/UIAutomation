@@ -17,7 +17,7 @@ namespace TestReport
             if (!this.IsPostBack)
             {
 
-                DataTable dt = this.ConvertCSVtoDataTable(@"F:\UIAutomation\TestSets\Set1.csv");
+                DataTable dt = this.ConvertCSVtoDataTable(@"F:\Github\UIAutomation\TestSets\Set1.csv");
 
                 GridView1.DataSource = dt;
                 GridView1.DataBind();

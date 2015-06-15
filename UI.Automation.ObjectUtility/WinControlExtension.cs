@@ -8,6 +8,7 @@
     using Microsoft.VisualStudio.TestTools.UITest.Extension;
     using Microsoft.VisualStudio.TestTools.UITesting;    
     using System.Drawing;
+    using DevExpress.CodedUIExtension.DXTestControls.v14_2;
     using System.Reflection;
 
 
@@ -110,7 +111,8 @@
             var window = WindowExists(windowname);
             if (!(window == null))
             {
-
+                
+                
                 WinEdit textbox = new WinEdit(window);
                 textbox.SearchProperties.Add(WinEdit.PropertyNames.Name, searchproperties);
 
@@ -190,6 +192,30 @@
                 {
 
                     Mouse.Click(TableRow);
+                }
+            }
+
+
+        }
+
+
+        public static void DxSelectCell(string windowname, string searchproperties)
+        {
+            var window = WindowExists(windowname); //Available JobsAvailableJobsTab[0]GridControl[0]GridControlCell[View][Row]7[Column]colJobNumber
+            if (!(window == null))
+            {
+
+                DXGrid grid= new DXGrid();
+                
+
+               // DXCell dCell = new DXCell();
+                grid.SearchProperties[DXCell.PropertyNames.Name] = "Available JobsAvailableJobsTab[0]GridControl[0]";
+                grid.SearchProperties[DXCell.PropertyNames.ClassName] = "GridControl";
+                grid.WindowTitles.Add("Entrada Editor");
+                if (grid.Exists)
+                {
+
+                    Mouse.Click(grid);
                 }
             }
 

@@ -1,2 +1,4 @@
-Testcaseid,Descriptions,Keyword,Parameter,Status,Actual,Expected,Timetaken
-,,UA_ENTRADAHOME_CLICKFINDALLJOBS,,Pass,,,00:00:01
+Testcaseid,Descriptions,Keyword,Parameter,Value,Status,Error Message,Timetaken
+1,Enter UserId,KEY_SIMPLETEXTEDIT_SETTEXT,Entrada Editor Login@txtUser,testeditor1,Fail,,00:00:00
+2,Enter Password,KEY_SIMPLETEXTEDIT_SETTEXT,Entrada Editor Login@txtPassword,testeditor1,Fail,,00:00:00
+3,Click login button,KEY_SIMPLEBUTTON_CLICK,Entrada Editor Login@btnLogin,,Fail,,00:00:00
